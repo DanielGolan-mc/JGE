@@ -1,8 +1,4 @@
-package net.danielgolan.je.engine;
-
-import javax.swing.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+package net.danielgolan.j2de.engine;
 
 public class JEngine implements Runnable{
     public final static double UPDATE_CAP = 1/60.0;
@@ -11,14 +7,15 @@ public class JEngine implements Runnable{
     private GWindow gWindow;
     private JGRenderer jgRenderer;
     private Input input;
+    public final Game GAME;
 
     private boolean running = false;
     private int width = 320, height = 240;
     private float scale = 4;
     private String title = "JEngine v0.0.1";
 
-    public JEngine() {
-        //TODO: Make Constructor
+    public JEngine(Game game) {
+        this.GAME = game;
     }
 
     public void start(){
@@ -38,12 +35,12 @@ public class JEngine implements Runnable{
     public void run() {
         running = true;
 
-        boolean render = false;
+        boolean render;
         double firstTime, passedTime, unprocessedTime, frameTime,
                 lastTime = System.nanoTime() / 1000000000.0;
         int frames, fps;
-        firstTime = passedTime = unprocessedTime = frameTime = .0;
-        frames = fps = 0;
+        unprocessedTime = frameTime = .0;
+        frames = 0;
 
         while (running) {
             render = false;
@@ -59,8 +56,7 @@ public class JEngine implements Runnable{
 
                 render = true;
 
-                System.out.println(input.getScroll() + " " + input.getMouseX() + " " + input.getMouseY());
-
+                GAME.update(this, (float) UPDATE_CAP);
                 input.update();
 
                 if (frameTime >= 1.0){
@@ -74,9 +70,9 @@ public class JEngine implements Runnable{
 
             if (render) {
                 jgRenderer.clear();
+                GAME.render(this, jgRenderer);
                 gWindow.update();
                 frames++;
-                //TODO Render
             }
             else try {
                 Thread.sleep(1);
@@ -90,10 +86,6 @@ public class JEngine implements Runnable{
 
     private void dispose() {
         //TODO: Dispose Game
-    }
-
-    public static void main(String[] args) {
-        new JEngine().start();
     }
 
     public int getWidth() {
@@ -130,5 +122,9 @@ public class JEngine implements Runnable{
 
     public GWindow getGWindow() {
         return gWindow;
+    }
+
+    public Input getInput() {
+        return input;
     }
 }

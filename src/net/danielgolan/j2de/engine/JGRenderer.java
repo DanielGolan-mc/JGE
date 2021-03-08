@@ -1,10 +1,12 @@
-package net.danielgolan.je.engine;
+package net.danielgolan.j2de.engine;
+
+import net.danielgolan.j2de.engine.gfx.GImage;
 
 import java.awt.image.DataBufferInt;
 
 public class JGRenderer {
-    private int pixelWidth, pixelHeight;
-    private int[] pixels;
+    private final int pixelWidth, pixelHeight;
+    private final int[] pixels;
     public final boolean BLACK_SCREEN;
 
     public JGRenderer (JEngine jEngine, boolean blackScreen){
@@ -27,5 +29,19 @@ public class JGRenderer {
                 pixels[i] += i;
             }
         }
+    }
+
+    public void setPixel(int x, int y, int value) {
+        if ((x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || value == 0xffff00ff){
+            return;
+        }
+
+        pixels[x + y * pixelWidth] = value;
+    }
+
+    public void drawImage(GImage image, int offX, int offY){
+        for (int x = 0; x < image.getWidth(); x++)
+            for (int y = 0; y < image.getHeight(); y++)
+                setPixel(x + offX, y + offY, image.getPixels()[x + y * image.getWidth()]);
     }
 }

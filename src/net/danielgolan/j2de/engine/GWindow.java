@@ -1,4 +1,4 @@
-package net.danielgolan.je.engine;
+package net.danielgolan.j2de.engine;
 
 import javax.swing.*;
 import java.awt.*;
