@@ -93,6 +93,31 @@ public class JGRenderer {
         }
     }
 
+    public void drawRect(int offX, int offY, int width, int height, int color){
+        for (int y = 0; y <= height; y++) {
+            setPixel(offX, y + offY, color);
+            setPixel(offX + width, y + offY, color);
+        }
+        for (int x = 0; x <= width; x++) {
+            setPixel(x + offX, offY, color);
+            setPixel(x + offX, offY + height, color);
+        }
+    }
+
+    public void fillRect(int offX, int offY, int width, int height, int color){
+        if (offX < - width || offY < - height || offX >= pixelWidth || offY >= pixelHeight) return;
+
+        int newX = 0, newY = 0, newWidth = width, newHeight = height;
+
+        if (offX < 0) newX -= offX;
+        if (offY < 0) newY -= offY;
+        if (newWidth + offX >= pixelWidth) newWidth -= newWidth + offX - pixelWidth;
+        if (newHeight + offY >= pixelHeight) newHeight -= newHeight + offY - pixelHeight;
+
+        for (int y = newY; y <= newHeight; y++) for (int x = newX; x <= newWidth; x++)
+            setPixel(x + offX, y + offY, color);
+    }
+
     public Font getFont() {
         return font;
     }
