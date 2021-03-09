@@ -23,7 +23,7 @@ public class GameManager extends Game {
 
     @Override
     public void render(JEngine jEngine, JGRenderer jgRenderer) {
-        jgRenderer.drawImage(image, jEngine.getInput().getMouseX(), jEngine.getInput().getMouseY());
+        jgRenderer.drawImage(image, jEngine.getInput().getMouseX() - 32, jEngine.getInput().getMouseY() - 32);
     }
 
     public static void main(String[] args) {

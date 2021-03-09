@@ -40,8 +40,17 @@ public class JGRenderer {
     }
 
     public void drawImage(GImage image, int offX, int offY){
-        for (int x = 0; x < image.getWidth(); x++)
-            for (int y = 0; y < image.getHeight(); y++)
+        if (offX < - image.getWidth() || offY < - image.getHeight() || offX >= pixelWidth || offY >= pixelHeight) return;
+
+        int newX = 0, newY = 0, newWidth = image.getWidth(), newHeight = image.getHeight();
+
+        if (offX < 0) newX -= offX;
+        if (offY < 0) newY -= offY;
+        if (newWidth + offX >= pixelWidth) newWidth -= newWidth + offX - pixelWidth;
+        if (newHeight + offY >= pixelHeight) newHeight -= newHeight + offY - pixelHeight;
+
+        for (int x = newX; x < newWidth; x++)
+            for (int y = newY; y < newHeight; y++)
                 setPixel(x + offX, y + offY, image.getPixels()[x + y * image.getWidth()]);
     }
 }
