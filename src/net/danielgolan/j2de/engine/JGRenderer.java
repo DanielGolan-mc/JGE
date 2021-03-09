@@ -1,6 +1,7 @@
 package net.danielgolan.j2de.engine;
 
 import net.danielgolan.j2de.engine.gfx.GImage;
+import net.danielgolan.j2de.engine.gfx.ImageTile;
 
 import java.awt.image.DataBufferInt;
 
@@ -52,5 +53,21 @@ public class JGRenderer {
         for (int x = newX; x < newWidth; x++)
             for (int y = newY; y < newHeight; y++)
                 setPixel(x + offX, y + offY, image.getPixels()[x + y * image.getWidth()]);
+    }
+
+    public void drawImageTile(ImageTile image, int offX, int offY, int tileX, int tileY){
+        if (offX < - image.getTileWidth() || offY < - image.getTileHeight() || offX >= pixelWidth || offY >= pixelHeight) return;
+
+        int newX = 0, newY = 0, newWidth = image.getTileWidth(), newHeight = image.getTileHeight();
+
+        if (offX < 0) newX -= offX;
+        if (offY < 0) newY -= offY;
+        if (newWidth + offX >= pixelWidth) newWidth -= newWidth + offX - pixelWidth;
+        if (newHeight + offY >= pixelHeight) newHeight -= newHeight + offY - pixelHeight;
+
+        for (int x = newX; x < newWidth; x++)
+            for (int y = newY; y < newHeight; y++)
+                setPixel(x + offX, y + offY, image.getPixels()
+                        [(x + tileX * image.getTileWidth()) + (y + tileY * image.getTileHeight()) * image.getWidth()]);
     }
 }
