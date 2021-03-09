@@ -38,7 +38,7 @@ public class JEngine implements Runnable{
         boolean render;
         double firstTime, passedTime, unprocessedTime, frameTime,
                 lastTime = System.nanoTime() / 1000000000.0;
-        int frames, fps;
+        int frames, fps = 64;
         unprocessedTime = frameTime = .0;
         frames = 0;
 
@@ -71,6 +71,7 @@ public class JEngine implements Runnable{
             if (render) {
                 jgRenderer.clear();
                 GAME.render(this, jgRenderer);
+                jgRenderer.drawText(fps + " FPS", 0, 0, 32, 0xff00ffff);
                 gWindow.update();
                 frames++;
             }

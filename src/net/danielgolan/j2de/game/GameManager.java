@@ -3,14 +3,12 @@ package net.danielgolan.j2de.game;
 import net.danielgolan.j2de.engine.Game;
 import net.danielgolan.j2de.engine.JEngine;
 import net.danielgolan.j2de.engine.JGRenderer;
-import net.danielgolan.j2de.engine.gfx.GImage;
 import net.danielgolan.j2de.engine.gfx.ImageTile;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class GameManager implements Game {
-    private final ImageTile image = new ImageTile("/myhead.png", 16, 16);
+    private final ImageTile image = new ImageTile("/assets/textures/test.png", 16, 16);
 
     public GameManager() {
 

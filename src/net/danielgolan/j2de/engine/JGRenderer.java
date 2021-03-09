@@ -1,5 +1,6 @@
 package net.danielgolan.j2de.engine;
 
+import net.danielgolan.j2de.engine.gfx.Font;
 import net.danielgolan.j2de.engine.gfx.GImage;
 import net.danielgolan.j2de.engine.gfx.ImageTile;
 
@@ -9,6 +10,8 @@ public class JGRenderer {
     private final int pixelWidth, pixelHeight;
     private final int[] pixels;
     public final boolean BLACK_SCREEN;
+
+    private Font font = Font.STANDARD;
 
     public JGRenderer (JEngine jEngine, boolean blackScreen){
         pixelWidth = jEngine.getWidth();
@@ -69,5 +72,32 @@ public class JGRenderer {
             for (int y = newY; y < newHeight; y++)
                 setPixel(x + offX, y + offY, image.getPixels()
                         [(x + tileX * image.getTileWidth()) + (y + tileY * image.getTileHeight()) * image.getWidth()]);
+    }
+
+    public void drawText(String text, int offX, int offY, int offStart, int color){
+        text = text.toUpperCase();
+        int offset = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            int unicode = text.codePointAt(i) - offStart;
+
+            for (int y = 0; y < font.FONT_IMAGE.getHeight(); y++) {
+                for (int x = 0; x < font.WIDTHS[unicode]; x++) {
+                    if (font.FONT_IMAGE.getPixels()[(x + font.OFFSETS[unicode]) + y * font.FONT_IMAGE.getWidth()] == 0xffffffff) {
+                        setPixel(x + offX + offset, y + offY, color);
+                    }
+                }
+            }
+
+            offset += font.WIDTHS[unicode];
+        }
+    }
+
+    public Font getFont() {
+        return font;
+    }
+
+    public void setFont(Font font) {
+        this.font = font;
     }
 }
