@@ -71,6 +71,7 @@ public class JEngine implements Runnable{
             if (render) {
                 jgRenderer.clear();
                 GAME.render(this, jgRenderer);
+                jgRenderer.process();
                 jgRenderer.drawText(fps + " FPS", 0, 0, 32, 0xff00ffff);
                 gWindow.update();
                 frames++;

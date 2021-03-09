@@ -10,6 +10,16 @@ public class ImageTile extends GImage{
         setTileHeight(tileHeight);
     }
 
+    public GImage getTile(int tileX, int tileY) throws IndexOutOfBoundsException{
+        int[] pixels = new int[getTileWidth() * getTileHeight()];
+
+        for (int x = 0; x < tileWidth; x++)
+            for (int y = 0; y < tileHeight; y++)
+                pixels[x + y * tileWidth] = getPixels()[(x + tileX * tileWidth) + (y + tileY * tileHeight) * this.getWidth()];
+
+        return new GImage(pixels, getTileWidth(), getTileHeight());
+    }
+
     public int getTileWidth() {
         return tileWidth;
     }

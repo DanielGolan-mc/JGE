@@ -1,7 +1,6 @@
 package net.danielgolan.j2de.engine.gfx;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
@@ -9,6 +8,7 @@ import java.util.Objects;
 public class GImage {
     private int width, height;
     private int[] pixels;
+    private boolean alpha = false;
 
     public GImage (String path){
         BufferedImage image = null;
@@ -26,6 +26,12 @@ public class GImage {
         pixels = image.getRGB(0, 0, width, height, null, 0, width);
 
         image.flush();
+    }
+
+    public GImage (int[] pixels, int width, int height){
+        this.pixels = pixels;
+        this.width = width;
+        this.height = height;
     }
 
     public int getWidth() {
@@ -50,5 +56,12 @@ public class GImage {
 
     public void setPixels(int[] pixels) {
         this.pixels = pixels;
+    }
+
+    public boolean isAlpha() {
+        return alpha;
+    }
+    public void setAlpha(boolean alpha) {
+        this.alpha = alpha;
     }
 }

@@ -2,21 +2,29 @@ package net.danielgolan.j2de.engine;
 
 import net.danielgolan.j2de.engine.gfx.Font;
 import net.danielgolan.j2de.engine.gfx.GImage;
+import net.danielgolan.j2de.engine.gfx.ImageRequest;
 import net.danielgolan.j2de.engine.gfx.ImageTile;
 
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class JGRenderer {
-    private final int pixelWidth, pixelHeight;
-    private final int[] pixels;
-    public final boolean BLACK_SCREEN;
-
     private Font font = Font.STANDARD;
+    private final List<ImageRequest> imageRequestList = new ArrayList<>();
+
+    private final int pixelWidth, pixelHeight;
+    private final int[] pixels, zBuffer;
+    public final boolean BLACK_SCREEN;
+    private boolean processing;
+    private int zDepth = 0;
 
     public JGRenderer (JEngine jEngine, boolean blackScreen){
         pixelWidth = jEngine.getWidth();
         pixelHeight = jEngine.getHeight();
         pixels = ((DataBufferInt) jEngine.getGWindow().getJImage().getRaster().getDataBuffer()).getData();
+        zBuffer = new int[pixels.length];
 
         this.BLACK_SCREEN = blackScreen;
     }
@@ -29,21 +37,54 @@ public class JGRenderer {
         for (int i = 0; i < pixels.length; i++){
             if (BLACK_SCREEN){
                 pixels[i] = 0;
+                zBuffer[i] = 0;
             } else {
                 pixels[i] += i;
+                zBuffer[i] += i;
             }
         }
     }
 
-    public void setPixel(int x, int y, int value) {
-        if ((x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || ((value >> 24) & 0xff) == 0){
-            return;
-        }
+    public void process(){
+        processing = true;
 
-        pixels[x + y * pixelWidth] = value;
+        imageRequestList.sort(Comparator.comparingInt(ImageRequest::getZDepth));
+
+        imageRequestList.forEach(imageRequest -> drawImage(imageRequest.getImage(), imageRequest.getOffX(), imageRequest.getOffY()));
+
+        imageRequestList.clear();
+
+        processing = false;
+    }
+
+    public void setPixel(int x, int y, int value) {
+        final int
+                ALPHA = ((value >> 24) & 0xff),
+                INDEX = x + (y * pixelWidth);
+
+        if ((x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || ALPHA == 0|| zBuffer[INDEX] > zDepth)
+            return;
+
+        zBuffer[INDEX] = zDepth;
+
+        if (ALPHA == 255) pixels[INDEX] = value;
+        else {
+            int pixelColor = pixels[INDEX];
+
+            int newRed = ((pixelColor >> 16) & 0xff) - (int) ((((pixelColor >> 16) & 0xff) - ((value >> 8) & 0xff)) * ALPHA / 255f);
+            int newGreen = ((pixelColor >> 8) & 0xff) - (int) ((((pixelColor >> 8) & 0xff) - ((value >> 8) & 0xff)) * ALPHA / 255f);
+            int newBlue = (pixelColor & 0xff) - (int) (((pixelColor & 0xff) - (value & 0xff)) * (ALPHA / 255f));
+
+            pixels[INDEX] = (255 << 24 | newRed << 16 | newGreen << 8 | newBlue);
+        }
     }
 
     public void drawImage(GImage image, int offX, int offY){
+        if (image.isAlpha() && !processing){
+            imageRequestList.add(new ImageRequest(image, zDepth, offX, offY));
+            return;
+        }
+
         if (offX < - image.getWidth() || offY < - image.getHeight() || offX >= pixelWidth || offY >= pixelHeight) return;
 
         int newX = 0, newY = 0, newWidth = image.getWidth(), newHeight = image.getHeight();
@@ -59,6 +100,11 @@ public class JGRenderer {
     }
 
     public void drawImageTile(ImageTile image, int offX, int offY, int tileX, int tileY){
+        if (image.isAlpha() && !processing){
+            imageRequestList.add(new ImageRequest(image.getTile(tileX, tileY), zDepth, offX, offY));
+            return;
+        }
+
         if (offX < - image.getTileWidth() || offY < - image.getTileHeight() || offX >= pixelWidth || offY >= pixelHeight) return;
 
         int newX = 0, newY = 0, newWidth = image.getTileWidth(), newHeight = image.getTileHeight();
@@ -124,5 +170,13 @@ public class JGRenderer {
 
     public void setFont(Font font) {
         this.font = font;
+    }
+
+    public int getzDepth() {
+        return zDepth;
+    }
+
+    public void setzDepth(int zDepth) {
+        this.zDepth = zDepth;
     }
 }
